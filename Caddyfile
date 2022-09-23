@@ -23,7 +23,11 @@ classic.coinos.io {
 }
 
 coinos.io {
-  reverse_proxy coinos:80
+	reverse_proxy coinos:80
+
+	handle /hook {
+		reverse_proxy ci:3000
+	}
 
 	tls {
 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
@@ -31,15 +35,15 @@ coinos.io {
 }
 
 v2.coinos.io {
-  redir https://coinos.io{uri} permanent
-} 
+	redir https://coinos.io{uri} permanent
+}
 
 bitcoingreenhouse.org {
 	handle_path /api* {
 		reverse_proxy app:3119
 	}
 
-  handle {
-    reverse_proxy gh:3000
-  }
-} 
+	handle {
+		reverse_proxy gh:3000
+	}
+}

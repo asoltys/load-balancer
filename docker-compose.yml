@@ -16,6 +16,11 @@ services:
     networks:
       default:
         ipv4_address: 172.42.1.0
+  ci:
+    container_name: ci
+    build: .
+    volumes:
+      - .:/app
 networks:
   default:
     name: net
