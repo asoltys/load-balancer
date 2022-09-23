@@ -21,6 +21,8 @@ services:
     build: .
     volumes:
       - .:/app
+    environment:
+      SECRET: "${SECRET}"
 networks:
   default:
     name: net
