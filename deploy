@@ -1,7 +1,7 @@
 #!/bin/bash
 cd ~/coinos-ui-v2
 git fetch
-git reset --hard origin/master
+git reset --hard origin/prod
 pnpm docker
 cd ~/coinos-server
 docker compose -f prod.yml pull
