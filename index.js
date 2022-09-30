@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { exec } = require("child_process");
 const crypto = require("crypto");
 const express = require("express");
@@ -46,7 +47,7 @@ function verifyPostData(req, res, next) {
 }
 
 app.post("/hook", verifyPostData, function (req, res) {
-  exec("sh deploy", (error, stdout, stderr) => {
+  exec("bash deploy", { uid: 1000 }, (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
     if (error !== null) {

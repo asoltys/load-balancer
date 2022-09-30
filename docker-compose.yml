@@ -1,7 +1,7 @@
 version: '3.6'
 services:
-  caddy:
-    container_name: caddy
+  lb:
+    container_name: lb
     image: gcr.io/coinos-326717/github.com/asoltys/caddy-cloudflare:latest
     restart: always
     ports:
@@ -11,18 +11,13 @@ services:
       - /var/coinos:/coinos
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
     environment:
       CLOUDFLARE_AUTH_TOKEN: "${CLOUDFLARE_AUTH_TOKEN}"
     networks:
       default:
         ipv4_address: 172.42.1.0
-  ci:
-    container_name: ci
-    build: .
-    volumes:
-      - .:/app
-    environment:
-      SECRET: "${SECRET}"
 networks:
   default:
     name: net

@@ -23,11 +23,13 @@ classic.coinos.io {
 }
 
 coinos.io {
-	reverse_proxy coinos:80
-
 	handle /hook {
-		reverse_proxy ci:3000
+		reverse_proxy host.docker.internal:3000
 	}
+
+  handle {
+    reverse_proxy coinos:80
+  }
 
 	tls {
 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
