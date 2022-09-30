@@ -23,10 +23,6 @@ classic.coinos.io {
 }
 
 coinos.io {
-	handle /hook {
-		reverse_proxy host.docker.internal:3000
-	}
-
   handle {
     reverse_proxy coinos:80
   }
