@@ -8,7 +8,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - /var/lynnlan.ca:/ll
       - /var/coinos:/coinos
+      - /var/adamsoltys.com:/as
+      - /var/yummyyards.ca:/yy
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy:/data
     extra_hosts:

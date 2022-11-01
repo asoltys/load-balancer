@@ -23,6 +23,12 @@ classic.coinos.io {
 }
 
 coinos.io {
+  @cached {
+    path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
+  }
+
+  header @cached Cache-Control "max-age=31536000, immutable"
+
   handle {
     reverse_proxy coinos:80
   }
@@ -43,5 +49,42 @@ bitcoingreenhouse.org {
 
 	handle {
 		reverse_proxy gh:3000
+	}
+}
+
+adamsoltys.com {
+	handle {
+		root * /as
+		file_server
+	}
+}
+
+yummyyards.ca {
+	handle {
+		root * /yy
+		file_server
+	}
+}
+
+lynnlan.ca {
+	handle {
+		root * /ll
+		file_server
+	}
+}
+
+staging.coinos.io {
+  reverse_proxy 192.168.1.64:80
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+staging2.coinos.io {
+  reverse_proxy 192.168.1.64:80
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
 	}
 }
