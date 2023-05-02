@@ -1,8 +1,0 @@
-#!/bin/bash
-cd ~/coinos-ui-v2
-git fetch
-git reset --hard origin/prod
-pnpm docker
-cd ~/coinos-server
-docker compose -f prod.yml pull
-docker compose -f prod.yml up -d --remove-orphans

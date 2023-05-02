@@ -1,14 +1,40 @@
-classic.coinos.io {
+dev.coinos.io {
 	handle_path /api* {
-		reverse_proxy app:3119
+		reverse_proxy 192.168.1.76:3119
 	}
 
 	handle /lnurl* {
-		reverse_proxy app:3118
+		reverse_proxy 192.168.1.76:3119
 	}
 
 	handle /ws* {
-		reverse_proxy app:3119
+		reverse_proxy 192.168.1.76:3119
+	}
+
+	handle {
+		reverse_proxy 192.168.1.76:4173
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+} 
+
+classic.coinos.io {
+  log {
+    output file /data/classic.log
+  } 
+
+	handle_path /api* {
+		reverse_proxy clapp:3119
+	}
+
+	handle /lnurl* {
+		reverse_proxy clapp:3118
+	}
+
+	handle /ws* {
+		reverse_proxy clapp:3119
 	}
 
 	handle {
@@ -22,15 +48,265 @@ classic.coinos.io {
 	}
 }
 
-coinos.io {
+registry.coinos.io {
+	reverse_proxy registry:6000
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+} 
+
+:80 {
+  log {
+    output file /data/coinos.log
+  } 
+
+  @cached {
+   path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
+  }
+
+  header / Cache-Control "max-age=3600"
+  header @cached Cache-Control "max-age=31536000, immutable"
+
+  @authed {
+    header Authorization Bearer*
+    path /
+  } 
+
+	handle_path /api* {
+		reverse_proxy app:3119
+	}
+
+	handle_path /.well-known* {
+		reverse_proxy app:3119
+	}
+
+	handle /lnurl* {
+		reverse_proxy app:3118
+	}
+
+	handle /ws* {
+		reverse_proxy app:3119
+	}
+
+	handle {
+		reverse_proxy coinos:3000
+	}
+}
+
+:8080 {
+  log {
+    output file /data/classic.log
+  } 
+
+	handle_path /api* {
+		reverse_proxy clapp:3119
+	}
+
+	handle /lnurl* {
+		reverse_proxy clapp:3118
+	}
+
+	handle /ws* {
+		reverse_proxy clapp:3119
+	}
+
+	handle {
+		root * /coinos
+		try_files {path}.html {path} /index.html
+		file_server
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+swapee.me {
+  log {
+    output file /data/swapee.log
+  } 
+
   @cached {
     path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
   }
 
+  header / Cache-Control "max-age=3600"
+  # header @cached Cache-Control "max-age=31536000, immutable"
+
+  @authed {
+    header Authorization Bearer*
+    path /
+  } 
+
+  rewrite @authed /dashboard/{cookie.username}
+
+	handle_path /api* {
+		reverse_proxy sapp:3119
+	}
+
+	handle_path /.well-known* {
+    header Access-Control-Allow-Origin "*"
+		reverse_proxy sapp:3119
+	}
+
+	handle /ws* {
+		reverse_proxy sapp:3119
+	}
+
+	handle {
+		reverse_proxy swapee:3000
+	}
+
+	tls {
+		dns cloudflare {env.SWAPEE_TOKEN}
+	}
+}
+
+hashme.io {
+  log {
+    output file /data/hashme.log
+  } 
+
+  @cached {
+    path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
+  }
+
+  header / Cache-Control "max-age=3600"
   header @cached Cache-Control "max-age=31536000, immutable"
 
+  @authed {
+    header Authorization Bearer*
+    path /
+  } 
+
+  rewrite @authed /dashboard/{cookie.username}
+
+	handle_path /api* {
+		reverse_proxy happ:3119
+	}
+
+	handle_path /.well-known* {
+    header Access-Control-Allow-Origin "*"
+		reverse_proxy happ:3119
+	}
+
+	handle /ws* {
+		reverse_proxy happ:3119
+	}
+
+	handle {
+		reverse_proxy hashme:3000
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+coinos.io {
+  log {
+    output file /data/coinos.log
+  } 
+
+  @cached {
+    path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
+  }
+
+  @lnurl {
+    query q=*
+    path /lnurl
+  } 
+
+  header Onion-Location http://vm7h454g5hiy2nt3u5o7evtz3vigtypo2mkyausakvdkbmd7wpyhx5qd.onion{path}
+  header / Cache-Control "max-age=3600"
+  header @cached Cache-Control "max-age=31536000, immutable"
+
+  @nocache {
+    expression `{err.status_code} == 404`
+  }
+
+  header @nocache Cache-Control "no-cache, no-store, must-revalidate"
+
+  @authed {
+    header Authorization Bearer*
+    path /
+  } 
+
+  rewrite @authed /dashboard/{cookie.username}
+
+  handle @lnurl {
+    reverse_proxy clapp:3118
+  } 
+
+	handle /pdf {
+		reverse_proxy host.docker.internal:8084
+	}
+
+	handle /text {
+		reverse_proxy host.docker.internal:8084
+	}
+
+	handle /proxy {
+		reverse_proxy app:3119
+	}
+
+	handle_path /api* {
+		reverse_proxy app:3119
+	}
+
+	handle_path /.well-known* {
+    header Access-Control-Allow-Origin "*"
+		reverse_proxy app:3119
+	}
+
+	handle /ws* {
+		reverse_proxy app:3119
+	}
+
+	handle_path /nostr* {
+		reverse_proxy 192.168.1.66:9393
+	}
+
+	handle {
+		reverse_proxy coinos:3000
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+maven.coinos.io {
+  log {
+    output file /data/maven.log
+  } 
+
+  @cached {
+    path *.jpg *.jpeg *.png *.gif *.ico *.webp *.css *.js /api/public*
+  }
+
+  header / Cache-Control "max-age=3600"
+  header @cached Cache-Control "max-age=31536000, immutable"
+
+	handle_path /api* {
+		reverse_proxy clapp:3119
+	}
+
+	handle_path /.well-known* {
+		reverse_proxy clapp:3119
+	}
+
+	handle /lnurl* {
+		reverse_proxy clapp:3118
+	}
+
+	handle /ws* {
+		reverse_proxy clapp:3119
+	}
+
   handle {
-    reverse_proxy coinos:80
+    reverse_proxy maven:3000
   }
 
 	tls {
@@ -38,17 +314,39 @@ coinos.io {
 	}
 }
 
-v2.coinos.io {
-	redir https://coinos.io{uri} permanent
-}
-
 bitcoingreenhouse.org {
 	handle_path /api* {
-		reverse_proxy app:3119
+		reverse_proxy clapp:3119
+	}
+
+	handle /ws* {
+		reverse_proxy clapp:3119
 	}
 
 	handle {
 		reverse_proxy gh:3000
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+staging.bitcoingreenhouse.org {
+	handle_path /api* {
+		reverse_proxy clapp:3119
+	}
+
+	handle /ws* {
+		reverse_proxy clapp:3119
+	}
+
+	handle {
+		reverse_proxy ghs:3000
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
 	}
 }
 
@@ -74,7 +372,7 @@ lynnlan.ca {
 }
 
 staging.coinos.io {
-  reverse_proxy 192.168.1.64:80
+  reverse_proxy 192.168.1.66:83
 
 	tls {
 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
@@ -83,6 +381,96 @@ staging.coinos.io {
 
 staging2.coinos.io {
   reverse_proxy 192.168.1.64:80
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+www.hashme.io {
+  redir https://hashme.io{uri}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+www.swapee.me {
+  redir https://swapee.me{uri}
+
+	tls {
+		dns cloudflare {env.SWAPEE_TOKEN}
+	}
+}
+
+www.coinos.io {
+  redir https://coinos.io{uri}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+test.coinos.io {
+  reverse_proxy http://192.168.1.66
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+signet.coinos.io {
+  reverse_proxy http://192.168.1.66:81
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+# nostr.coinos.io {
+#   reverse_proxy http://192.168.1.66:7001
+# 
+# 	tls {
+# 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+# 	}
+# }
+# 
+# if.coinos.io {
+#   # reverse_proxy http://192.168.1.66:82
+# 	handle_path /api* {
+#     reverse_proxy http://192.168.1.66:7000
+#   }
+# 
+#   @notThese not path /api*
+#   handle {
+#     reverse_proxy http://192.168.1.66:4173
+#     basicauth @notThese {
+#       if $2a$14$bQVES20zwYhHsA.5VeSSV.NUVg9QyGkEAdlCYXItmfFFIlJutemgC
+#     } 
+#   }
+# 
+# 	tls {
+# 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+# 	}
+# }
+
+athanasi.coinos.io {
+  handle {
+    reverse_proxy http://192.168.1.66:85
+    basicauth {
+      nasi $2a$14$bQVES20zwYhHsA.5VeSSV.NUVg9QyGkEAdlCYXItmfFFIlJutemgC
+    } 
+  }
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
+	}
+}
+
+paper.coinos.io {
+  handle {
+    reverse_proxy http://mp:3000
+  }
 
 	tls {
 		dns cloudflare {env.CLOUDFLARE_AUTH_TOKEN}
